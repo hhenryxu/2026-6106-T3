@@ -1,0 +1,86 @@
+<head>
+    <meta name="viewpoint" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
+
+</head>
+
+<body>
+    <div class="container">
+        <h2>Store MSG</h2>
+        <input type="text" id="msg" placeholder="Enter MSG">
+        <button class="btn" onclick="connectwallet()">Connect Wallet</button>
+        <button class="btn" onclick="store()">Store</button>
+        <button class="btn" onclick="view()">View MSG</button>
+        <p id="message"></p>
+        <form action="/main" method="post">
+            <input type="submit" value="Main">
+        </form>
+        
+        
+
+        <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+        <script>
+            const contractAddress = "0x33c16f833a58dde30270eca875a4964341d15199";
+            const contractABI = [
+                {
+                    "inputs": [],
+                    "name": "message",
+                    "outputs": [
+                        {
+                            "internalType": "string",
+                            "name": "",
+                            "type": "string"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "showmsg",
+                    "outputs": [
+                        {
+                            "internalType": "string",
+                            "name": "",
+                            "type": "string"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "string",
+                            "name": "_message",
+                            "type": "string"
+                        }
+                    ],
+                    "name": "storemasg",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ]
+            const web3 = new Web3(Web3.givenProvider);
+            const contract = new web3.eth.Contract(contractABI, contractAddress);
+            let accounts;
+            async function connectwallet() {
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                console.log("Connected", accounts[0]);
+            }
+
+            async function store() {
+                const val = document.getElementById("msg").value;
+                await contract.methods.storemasg(val).send({ from: accounts[0] });
+                console.log("Message stored:", val);
+            }
+
+            async function view() {
+                const result = await contract.methods.showmsg().call();
+                document.getElementById("message").innerText = result;
+                console.log("Retrieved message:", result);
+            }
+        </script>
+    </div>
+</body>
